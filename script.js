@@ -1,11 +1,11 @@
 "use strict";
 
 // implement header
-let menu = document.createElement("div");
+let menu = document.createElement("form");
 menu.className = "menu";
 menu.insertAdjacentHTML(
   "afterbegin",
-  `<button>Start Game</button>
+  `<button type="submit">Start Game</button>
    <button>Stop</button>
    <button>Save</button>
    <button>Results</button>`
@@ -51,7 +51,7 @@ function getField(fieldSize, isRandom) {
       let row = [];
       for (let j = 0; j < fieldSize; j++) {
         let cell = numArray.splice(Math.random() * numArray.length, 1);
-        row.push(cell);
+        row.push(cell[0]);
       }
       field.push(row);
     }
@@ -76,7 +76,6 @@ function buildGrid(field) {
       p.innerText = cell;
 
       puzzle.append(p);
-      console.log(p);
     }
   }
   document.body.append(puzzle);
@@ -97,7 +96,7 @@ function showMovingCells(field, fieldSize, puzzle) {
 
       if (
         (emptyCell + 1) % fieldSize != 0 &&
-        emptyCell + 1 <= fieldSize * fieldSize
+        emptyCell + 1 < fieldSize * fieldSize
       ) {
         puzzle.children[emptyCell + 1].classList.toggle("movingCell");
       }
@@ -108,51 +107,43 @@ function showMovingCells(field, fieldSize, puzzle) {
       if (emptyCell - fieldSize >= 0) {
         puzzle.children[emptyCell - fieldSize].classList.toggle("movingCell");
       }
-      if (emptyCell + fieldSize <= fieldSize * fieldSize) {
+      if (emptyCell + fieldSize < fieldSize * fieldSize) {
         puzzle.children[emptyCell + fieldSize].classList.toggle("movingCell");
       }
     }
   }
 }
 
-let fieldType = 4;
+function moveCells(field, cellNumber) {
+  for (let i = 0; i < field.length; i++) {
+    for (let j = 0; j < field.length; j++) {
+      if (field[i][j] == " ") field[i][j] = Number(cellNumber);
+      else if (field[i][j] == cellNumber) field[i][j] = " ";
+    }
+  }
+  return field;
+}
+
+let fieldType = document.get;
 let puzzle = document.createElement("div");
 puzzle.classList = `puzzle type${fieldType}x${fieldType}`;
 
-let prevState = getField(fieldType, true);
-buildGrid(prevState);
-showMovingCells(prevState, fieldType, puzzle);
-
-let currentCondition = [];
+let currentState = getField(fieldType, true);
+buildGrid(currentState);
+showMovingCells(currentState, fieldType, puzzle);
 
 puzzle.addEventListener("click", (event) => {
-  if (event.target.classList.contains("movingCell")) {
-    console.log(event.target);
+  let movingCell = event.target;
+
+  if (movingCell.classList.contains("movingCell")) {
+    let counter = document.getElementsByClassName("moves")[0];
+    counter.textContent = +counter.textContent + 1;
+
+    currentState = moveCells(currentState, movingCell.textContent);
+    puzzle.querySelectorAll("p").forEach((el) => {
+      el.remove();
+    });
+    buildGrid(currentState);
+    showMovingCells(currentState, fieldType, puzzle);
   }
 });
-
-// for (let i = 0; i < 4; i++) {
-//   let row = [];
-//   for (let j = 0; j < 4; j++) {
-//     let cell = document.createElement("td");
-//     cell.classList.add("cell");
-
-//     let num = prevState.splice(
-//       Math.random() * prevState.length,
-//       1
-//     );
-
-//     // cell.append(i * 4 + (j + 1));
-//     cell.append(num);
-//     currentCondition.push(num);
-//     row.push(cell);
-//   }
-
-//   //   if (i == 3) row[row.length - 1].innerText = "";
-
-//   let rowDiv = document.createElement("tr");
-//   rowDiv.append(...row);
-//   puzzle.append(rowDiv);
-// }
-//   target = event.target;
-// setTimeout(() => puzzle.remove(), 3000);

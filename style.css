@@ -10,6 +10,7 @@ body {
 
 .puzzle {
   display: grid;
+  margin: 0 auto;
   width: fit-content;
   justify-content: center;
   grid-gap: 1vw;
@@ -32,12 +33,19 @@ body {
 
 .menu > button {
   font-size: 5vw;
+  cursor: pointer;
+}
+
+.gameFeature > input,
+.gameFeature > label {
+  cursor: pointer;
 }
 
 .movingCell {
-  background-color: blue;
+  background-color: rgb(175, 175, 180);
   cursor: pointer;
 }
+
 .emptyCell {
   background-color: burlywood;
 }
