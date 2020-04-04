@@ -1,0 +1,101 @@
+* {
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0 auto;
+}
+
+.puzzle {
+  display: grid;
+  width: fit-content;
+  justify-content: center;
+  grid-gap: 1vw;
+  border: solid 1px black;
+}
+
+.cell {
+  font-size: 5vw;
+  width: 10vw;
+  height: 10vw;
+  margin: 2px;
+  border: solid 2px black;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+
+.menu > button {
+  font-size: 5vw;
+}
+
+.movingCell {
+  background-color: blue;
+  cursor: pointer;
+}
+.emptyCell {
+  background-color: burlywood;
+}
+
+/* fields */
+.type3x3 {
+  grid-template-areas:
+    "a a a"
+    "a a a"
+    "a a a";
+}
+
+.type4x4 {
+  grid-template-areas:
+    "a a a a"
+    "a a a a"
+    "a a a a"
+    "a a a a";
+}
+
+.type5x5 {
+  grid-template-areas:
+    "a a a a a"
+    "a a a a a"
+    "a a a a a"
+    "a a a a a"
+    "a a a a a";
+}
+
+.type6x6 {
+  grid-template-areas:
+    "a a a a a a"
+    "a a a a a a"
+    "a a a a a a"
+    "a a a a a a"
+    "a a a a a a"
+    "a a a a a a";
+}
+
+.type7x7 {
+  grid-template-areas:
+    "a a a a a a a"
+    "a a a a a a a"
+    "a a a a a a a"
+    "a a a a a a a"
+    "a a a a a a a"
+    "a a a a a a a"
+    "a a a a a a a";
+}
+
+.type8x8 {
+  grid-template-areas:
+    "a a a a a a a a"
+    "a a a a a a a a"
+    "a a a a a a a a"
+    "a a a a a a a a"
+    "a a a a a a a a"
+    "a a a a a a a a"
+    "a a a a a a a a"
+    "a a a a a a a a";
+}
