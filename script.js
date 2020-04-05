@@ -5,18 +5,19 @@ let menu = document.createElement("form");
 menu.className = "menu";
 menu.insertAdjacentHTML(
   "afterbegin",
-  `<button type="submit">Start Game</button>
-   <button>Stop</button>
-   <button>Save</button>
-   <button>Results</button>`
+  `<button type="button" id="startButton">Размешать и начать</button>
+   <button type="button" id="stopButton">Стоп</button>
+   <button type="button" id="saveButton">Сохранить</button>
+   <button type="button" id="resultsButton">Результаты</button>`
 );
 document.body.append(menu);
 
 let gameFeature = document.createElement("div");
-gameFeature.className = "gameFeature";
+gameFeature.className = "game-feature";
 gameFeature.insertAdjacentHTML(
   "afterbegin",
   `
+  <div class="radio-buttons">
 <input type="radio" name="field-type" id="3x3" value="3" />
 <label for="3x3">3x3</label>
 <input type="radio" name="field-type" id="4x4" value="4" checked />
@@ -29,15 +30,26 @@ gameFeature.insertAdjacentHTML(
 <label for="7x7">7x7</label>
 <input type="radio" name="field-type" id="8x8" value="8" />
 <label for="8x8">8x8</label>
-
+</div>
+<div class="game-statistic">
 <p>Ходов: <span class="moves">0</span></p>
-<p>Время: <span class="time">00:00</span></p>`
+<p>Время: <span class="time">00:00</span></p></div>`
 );
 document.body.append(gameFeature);
 
 // --------------------------------------------------
 
-//
+// create field
+function getFieldSize(radioName) {
+  let radioButtons = document.getElementsByName(radioName);
+  let fieldSize;
+  for (let i = 0; i < radioButtons.length; i++) {
+    if (radioButtons[i].checked) fieldSize = radioButtons[i].value;
+  }
+
+  return Number(fieldSize);
+}
+
 function getField(fieldSize, isRandom) {
   let numArray = [];
   for (let i = 0; i < fieldSize * fieldSize - 1; i++) {
@@ -68,50 +80,67 @@ function getField(fieldSize, isRandom) {
   return field;
 }
 
-function buildGrid(field) {
-  for (let row of field) {
-    for (let cell of row) {
-      let p = document.createElement("p");
-      p.classList = "cell";
-      p.innerText = cell;
-
-      puzzle.append(p);
-    }
+function updateGrid(field, fieldSize, parentElement) {
+  function removeGrid(parentElement) {
+    parentElement.querySelectorAll("p").forEach((el) => {
+      el.remove();
+    });
   }
-  document.body.append(puzzle);
-}
+  function buildGrid(field, parentElement) {
+    for (let row of field) {
+      for (let cell of row) {
+        let p = document.createElement("p");
+        p.classList = "cell";
+        p.innerText = cell;
 
-/**
- *
- * @param {Object.Arry} field -- array of nums
- * @param {number} fieldSize -- side length
- * @param {*} puzzle -- DOM element
- */
-function showMovingCells(field, fieldSize, puzzle) {
-  for (let i = 0; i < fieldSize; i++) {
-    for (let j = 0; j < fieldSize; j++) {
-      if (field[i][j] != " ") continue;
-      let emptyCell = i * fieldSize + j;
-      puzzle.children[emptyCell].classList.toggle("emptyCell");
-
-      if (
-        (emptyCell + 1) % fieldSize != 0 &&
-        emptyCell + 1 < fieldSize * fieldSize
-      ) {
-        puzzle.children[emptyCell + 1].classList.toggle("movingCell");
-      }
-
-      if ((emptyCell - 1) % fieldSize != 3 && emptyCell - 1 >= 0) {
-        puzzle.children[emptyCell - 1].classList.toggle("movingCell");
-      }
-      if (emptyCell - fieldSize >= 0) {
-        puzzle.children[emptyCell - fieldSize].classList.toggle("movingCell");
-      }
-      if (emptyCell + fieldSize < fieldSize * fieldSize) {
-        puzzle.children[emptyCell + fieldSize].classList.toggle("movingCell");
+        parentElement.append(p);
       }
     }
+    document.body.append(parentElement);
   }
+  /**
+   *
+   * @param {Object.Arry} field -- array of nums
+   * @param {number} fieldSize -- side length
+   * @param {*} parentElement -- DOM element
+   */
+  function showMovingCells(field, fieldSize, parentElement) {
+    for (let i = 0; i < fieldSize; i++) {
+      for (let j = 0; j < fieldSize; j++) {
+        if (field[i][j] != " ") continue;
+        let emptyCell = i * fieldSize + j;
+        parentElement.children[emptyCell].classList.toggle("emptyCell");
+
+        if (
+          (emptyCell + 1) % fieldSize != 0 &&
+          emptyCell + 1 < fieldSize * fieldSize
+        ) {
+          parentElement.children[emptyCell + 1].classList.toggle("movingCell");
+        }
+
+        if (
+          (emptyCell - 1) % fieldSize != fieldSize - 1 &&
+          emptyCell - 1 >= 0
+        ) {
+          parentElement.children[emptyCell - 1].classList.toggle("movingCell");
+        }
+        if (emptyCell - fieldSize >= 0) {
+          parentElement.children[emptyCell - fieldSize].classList.toggle(
+            "movingCell"
+          );
+        }
+        if (emptyCell + fieldSize < fieldSize * fieldSize) {
+          parentElement.children[emptyCell + fieldSize].classList.toggle(
+            "movingCell"
+          );
+        }
+      }
+    }
+  }
+
+  removeGrid(parentElement);
+  buildGrid(field, parentElement);
+  showMovingCells(field, fieldSize, parentElement);
 }
 
 function moveCells(field, cellNumber) {
@@ -124,26 +153,74 @@ function moveCells(field, cellNumber) {
   return field;
 }
 
-let fieldType = document.get;
-let puzzle = document.createElement("div");
-puzzle.classList = `puzzle type${fieldType}x${fieldType}`;
+function upMovesCounter() {
+  let counter = document.getElementsByClassName("moves")[0];
+  counter.textContent = +counter.textContent + 1;
+}
 
-let currentState = getField(fieldType, true);
-buildGrid(currentState);
-showMovingCells(currentState, fieldType, puzzle);
+function cleanMovesCounter() {
+  let counter = document.getElementsByClassName("moves")[0];
+  counter.textContent = 0;
+}
 
-puzzle.addEventListener("click", (event) => {
+function getGameTime() {
+  let duration = Math.round((new Date() - startGameTime) / 1000);
+  let minutes = Math.floor(duration / 60);
+  let seconds = duration - minutes * 60;
+  let result = "";
+
+  if (minutes < 10) minutes = "0" + minutes;
+  if (seconds < 10) seconds = "0" + seconds;
+  result = minutes + ":" + seconds;
+
+  return result;
+}
+
+function clickOnCell(event) {
+  if (!startGameTime) startGameTime = new Date();
+
   let movingCell = event.target;
-
   if (movingCell.classList.contains("movingCell")) {
-    let counter = document.getElementsByClassName("moves")[0];
-    counter.textContent = +counter.textContent + 1;
+    upMovesCounter();
 
     currentState = moveCells(currentState, movingCell.textContent);
-    puzzle.querySelectorAll("p").forEach((el) => {
-      el.remove();
-    });
-    buildGrid(currentState);
-    showMovingCells(currentState, fieldType, puzzle);
+    updateGrid(currentState, fieldSize, puzzle);
+    if (checkEndgame(puzzle, fieldSize)) {
+      let time = getGameTime();
+      let steps = document.getElementsByClassName("moves")[0].textContent;
+
+      setTimeout(
+        () => alert(`Ура! Вы решили головоломку за ${time} и ${steps} ходов`),
+        500
+      );
+    }
   }
-});
+}
+
+function startGame() {
+  fieldSize = getFieldSize("field-type");
+  puzzle.classList = `puzzle type${fieldSize}x${fieldSize}`;
+  currentState = getField(fieldSize, true);
+
+  cleanMovesCounter();
+  updateGrid(currentState, fieldSize, puzzle);
+}
+
+function checkEndgame(parentElement, fieldSize) {
+  for (let i = 0; i < fieldSize * fieldSize - 1; i++) {
+    if (parentElement.children[i].textContent != i + 1) return false;
+  }
+  return true;
+}
+
+let fieldSize = getFieldSize("field-type");
+let currentState = getField(fieldSize, false);
+let startGameTime;
+
+let puzzle = document.createElement("div");
+puzzle.classList = `puzzle type${fieldSize}x${fieldSize}`;
+updateGrid(currentState, fieldSize, puzzle);
+
+document.getElementById("startButton").addEventListener("click", startGame);
+puzzle.addEventListener("click", clickOnCell);
+// puzzle.onclick = updateTime();
